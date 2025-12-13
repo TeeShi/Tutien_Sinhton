@@ -220,19 +220,10 @@ func _spawn_sword(direction: Vector2, index: int) -> void:
 	var final_direction = direction.rotated(angle_offset)
 	
 	# Instantiate projectile
-	# Lưu ý: Cần tạo SwordProjectile.tscn trước khi uncomment
-	# var sword = PROJECTILE_SCENE.instantiate()
-	# sword.global_position = player.global_position
-	# sword.setup(final_direction, current_damage, current_speed, current_pierce, current_duration)
-	# get_tree().current_scene.add_child(sword)
-	
-	# TẠM THỜI: Print debug thay vì spawn thực
-	print("  → Sword ", index, " spawned, direction: ", final_direction)
-	
-	# TẠM THỜI: Gây damage cho enemy gần nhất (để test)
-	var nearest = _find_nearest_enemy()
-	if nearest and nearest.has_method("take_damage"):
-		nearest.take_damage(current_damage, final_direction * base_knockback)
+	var sword = PROJECTILE_SCENE.instantiate()
+	sword.global_position = player.global_position
+	sword.setup(final_direction, current_damage, current_speed, current_pierce, current_duration, base_knockback)
+	get_tree().current_scene.add_child(sword)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

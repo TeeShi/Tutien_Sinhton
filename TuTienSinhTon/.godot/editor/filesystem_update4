@@ -1,1 +1,2 @@
-res://scenes/main/Main.tscn
+res://scripts/autoload/GameManager.gd
+res://scripts/ui/LevelUpUI.gd

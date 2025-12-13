@@ -233,7 +233,7 @@ func toggle_pause() -> void:
 ## Vào trạng thái level up (hiện UI chọn skill)
 func enter_level_up() -> void:
 	current_state = GameState.LEVEL_UP
-	get_tree().paused = true  # Pause game khi chọn
+	# UI sẽ handle pause/unpause
 	Events.level_up_started.emit(current_level)
 
 

@@ -12,9 +12,6 @@ extends BaseEnemy
 
 
 func _ready() -> void:
-	# Thêm vào group "enemies" để weapon có thể tìm
-	add_to_group("enemies")
-	
 	# Set enemy info
 	enemy_id = "tieu_yeu_trung"
 	enemy_name = "Tiểu Yêu Trùng"

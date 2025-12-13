@@ -81,6 +81,9 @@ var can_attack: bool = true
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _ready() -> void:
+	# Add to enemies group (để weapons có thể tìm thấy)
+	add_to_group("enemies")
+	
 	# Initialize HP
 	current_hp = max_hp
 	
