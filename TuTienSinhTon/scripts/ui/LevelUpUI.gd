@@ -22,7 +22,6 @@ extends CanvasLayer
 #                              DATA
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Danh sách upgrades có thể
 var available_upgrades: Array = [
 	{"id": "damage", "name": "+20% Công Lực", "description": "Tăng damage cho tất cả vũ khí"},
 	{"id": "speed", "name": "+10% Thân Pháp", "description": "Tăng tốc độ di chuyển"},
@@ -35,7 +34,12 @@ var available_upgrades: Array = [
 	{"id": "magnet", "name": "+20% Hút XP", "description": "Tăng phạm vi hút XP"},
 ]
 
-var current_options: Array = []  # 3 options đang hiển thị
+var current_options: Array = []
+var auto_upgrade_enabled: bool = false
+var option_buttons: Array = []
+
+# Gacha module
+var gacha: GachaSelector = null
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -43,14 +47,19 @@ var current_options: Array = []  # 3 options đang hiển thị
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _ready() -> void:
-	# Ẩn ban đầu
 	visible = false
+	option_buttons = [option1, option2, option3]
 	
 	# Connect signals
 	Events.level_up_started.connect(_on_level_up_started)
 	option1.pressed.connect(func(): _select_option(0))
 	option2.pressed.connect(func(): _select_option(1))
 	option3.pressed.connect(func(): _select_option(2))
+	
+	# Tạo GachaSelector module
+	gacha = GachaSelector.new()
+	gacha.selection_finished.connect(_on_gacha_finished)
+	add_child(gacha)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -58,88 +67,107 @@ func _ready() -> void:
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _on_level_up_started(new_level: int) -> void:
-	# Cập nhật title
 	title_label.text = "ĐỘT PHÁ! CẢNH GIỚI %d" % new_level
-	
-	# Random 3 options
 	_generate_options()
-	
-	# Hiển thị UI
 	visible = true
 	
-	# Pause game
-	get_tree().paused = true
+	if auto_upgrade_enabled:
+		# Disable buttons, bắt đầu gacha
+		for btn in option_buttons:
+			btn.disabled = true
+		gacha.start(option_buttons)
+		# Không pause
+	else:
+		get_tree().paused = true
+
+
+func _on_gacha_finished(selected_index: int) -> void:
+	# Gacha animation kết thúc
+	var selected = current_options[selected_index]
+	_apply_upgrade(selected["id"])
+	_show_notification(selected["name"], selected["description"], true)
+	
+	# Đợi một chút để user thấy kết quả
+	await get_tree().create_timer(0.8).timeout
+	
+	# Ẩn UI
+	visible = false
+	
+	# Reset buttons
+	for btn in option_buttons:
+		btn.disabled = false
+		btn.modulate = Color.WHITE
+	
+	GameManager.exit_level_up()
+	print("[AUTO] Selected: ", selected["name"])
 
 
 func _generate_options() -> void:
-	# Shuffle và lấy 3 options
 	var shuffled = available_upgrades.duplicate()
 	shuffled.shuffle()
 	current_options = shuffled.slice(0, 3)
 	
-	# Update buttons
 	option1.text = current_options[0]["name"]
 	option2.text = current_options[1]["name"]
 	option3.text = current_options[2]["name"]
 
 
 func _select_option(index: int) -> void:
+	if gacha and gacha.is_running:
+		return  # Không cho click khi đang gacha
+	
 	var selected = current_options[index]
-	
-	# Apply upgrade
 	_apply_upgrade(selected["id"])
+	_show_notification(selected["name"], selected["description"], false)
 	
-	# Ẩn UI
 	visible = false
-	
-	# Resume game
 	get_tree().paused = false
 	GameManager.exit_level_up()
-	
-	print("Selected upgrade: ", selected["name"])
+	print("Selected: ", selected["name"])
 
+
+func _show_notification(skill_name: String, skill_desc: String, is_auto: bool) -> void:
+	var notification = get_tree().root.find_child("UpgradeNotification", true, false)
+	if notification and notification.has_method("show_upgrade"):
+		notification.show_upgrade(skill_name, skill_desc, is_auto)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#                           APPLY UPGRADES
+# ═══════════════════════════════════════════════════════════════════════════
 
 func _apply_upgrade(upgrade_id: String) -> void:
-	# Lấy player reference
 	var player = GameManager.player
 	if not player:
 		return
 	
-	# Apply dựa trên ID
 	match upgrade_id:
 		"damage":
-			# Tăng damage cho tất cả weapons
 			_apply_to_all_weapons(func(w): w.base_damage *= 1.2)
 		"speed":
 			player.base_move_speed *= 1.1
 		"proj_speed":
-			# Tăng tốc độ đạn cho tất cả weapons
 			_apply_to_all_weapons(func(w): 
 				w.base_speed *= 1.15
 				w.recalculate_stats()
 			)
 		"cooldown":
-			# Giảm cooldown cho tất cả weapons
 			_apply_to_all_weapons(func(w): w.base_cooldown *= 0.9)
 		"area":
-			# Tăng area cho tất cả weapons
 			_apply_to_all_weapons(func(w): w.base_area *= 1.15)
 		"health":
 			player.max_hp += 20
 			player.current_hp = min(player.current_hp + 20, player.max_hp)
 			Events.player_health_changed.emit(player.current_hp, player.max_hp)
 		"regen":
-			# Tăng HP regen (cần thêm vào Player sau)
 			if player.has_method("add_hp_regen"):
 				player.add_hp_regen(1)
 		"amount":
-			# Tăng projectile amount cho tất cả weapons
 			_apply_to_all_weapons(func(w): 
 				w.base_amount += 1
 				w.recalculate_stats()
 			)
 		"magnet":
-			# Tăng magnet radius
 			if player.has_node("MagnetArea/CollisionShape2D"):
 				var shape = player.get_node("MagnetArea/CollisionShape2D").shape
 				if shape is CircleShape2D:
@@ -147,7 +175,6 @@ func _apply_upgrade(upgrade_id: String) -> void:
 
 
 func _apply_to_all_weapons(callback: Callable) -> void:
-	# Tìm tất cả weapons trong WeaponContainer
 	var player = GameManager.player
 	if not player or not player.has_node("WeaponContainer"):
 		return
@@ -156,4 +183,3 @@ func _apply_to_all_weapons(callback: Callable) -> void:
 	for weapon in weapon_container.get_children():
 		if weapon is BaseWeapon:
 			callback.call(weapon)
-

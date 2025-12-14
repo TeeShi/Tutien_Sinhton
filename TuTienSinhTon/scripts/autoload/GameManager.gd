@@ -199,6 +199,7 @@ func end_run(is_victory: bool) -> void:
 	if is_victory:
 		print("VICTORY! Độ Kiếp thành công!")
 		current_state = GameState.VICTORY
+		Events.victory.emit()  # Trigger victory screen
 	else:
 		print("DEFEAT! Tu sĩ đã ngã xuống...")
 		current_state = GameState.GAME_OVER

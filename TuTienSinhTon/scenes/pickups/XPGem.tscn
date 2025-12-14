@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://xp_gem"]
+
+[ext_resource type="Script" path="res://scripts/pickups/XPGem.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cqthx3u7f5rnc" path="res://icon.svg" id="2_icon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 10.0
+
+[node name="XPGem" type="Area2D"]
+collision_layer = 8
+collision_mask = 1
+monitoring = true
+monitorable = true
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.2, 0.8, 1.0, 1)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_icon")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")

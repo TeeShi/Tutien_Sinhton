@@ -187,37 +187,20 @@ func _find_nearest_enemy() -> Node2D:
 func _spawn_sword(direction: Vector2, index: int) -> void:
 	# ┌─────────────────────────────────────────────────────────────────────┐
 	# │ Spawn pattern cho nhiều kiếm:                                       │
-	# │   1 kiếm: Bay thẳng                                                 │
-	# │   2 kiếm: Một trên, một dưới                                        │
-	# │   3+ kiếm: Fan pattern (quạt)                                       │
+	# │   1 kiếm: Bay thẳng về hướng target                                 │
+	# │   2 kiếm: Đối diện nhau (180°)                                      │
+	# │   3 kiếm: 0°, 120°, 240° (tam giác)                                 │
+	# │   4 kiếm: 0°, 90°, 180°, 270° (chữ thập)                            │
+	# │   n kiếm: Chia đều 360° / n                                         │
 	# └─────────────────────────────────────────────────────────────────────┘
 	
-	# Tính angle offset cho fan pattern
-	var angle_offset = 0.0
-	if current_amount > 1:
-		# ┌─────────────────────────────────────────────────────────────────┐
-		# │ BÀI HỌC: Spread pattern math                                    │
-		# ├─────────────────────────────────────────────────────────────────┤
-		# │ Với n projectiles, spread angle = 15 degrees mỗi cái            │
-		# │                                                                 │
-		# │ VD 3 projectiles:                                               │
-		# │   index 0: -15°                                                 │
-		# │   index 1: 0°                                                   │
-		# │   index 2: +15°                                                 │
-		# │                                                                 │
-		# │ Công thức: angle = (index - center_index) * spread              │
-		# │   center_index = (count - 1) / 2.0                              │
-		# │   → 3 kiếm: center = 1.0                                        │
-		# │   → index 0: (0 - 1) * 15 = -15°                                │
-		# │   → index 1: (1 - 1) * 15 = 0°                                  │
-		# │   → index 2: (2 - 1) * 15 = 15°                                 │
-		# └─────────────────────────────────────────────────────────────────┘
-		var spread_angle = deg_to_rad(15.0)  # 15 degrees thành radians
-		var center_index = (current_amount - 1) / 2.0
-		angle_offset = (index - center_index) * spread_angle
+	var final_direction = direction
 	
-	# Rotate direction bằng offset
-	var final_direction = direction.rotated(angle_offset)
+	if current_amount > 1:
+		# Chia đều 360 độ cho số kiếm
+		var angle_per_sword = TAU / current_amount  # TAU = 2π = 360°
+		var angle_offset = angle_per_sword * index
+		final_direction = direction.rotated(angle_offset)
 	
 	# Instantiate projectile
 	var sword = PROJECTILE_SCENE.instantiate()

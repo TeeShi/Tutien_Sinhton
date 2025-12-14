@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://1yh8kgam3qt0"]
+[gd_scene load_steps=14 format=3 uid="uid://1yh8kgam3qt0"]
 
 [ext_resource type="Script" uid="uid://duendb7s7esnx" path="res://scripts/main/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bx8kf7vqrp1jy" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -8,6 +8,11 @@
 [ext_resource type="Script" uid="uid://2rl1air3117r" path="res://scripts/ui/HUD.gd" id="6_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameOver.tscn" id="7_gameover"]
 [ext_resource type="PackedScene" path="res://scenes/ui/LevelUpUI.tscn" id="8_levelup"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/HoaCau.tscn" id="9_hoacau"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/LoiKich.tscn" id="10_loikich"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UpgradeNotification.tscn" id="11_notification"]
+[ext_resource type="PackedScene" path="res://scenes/ui/VictoryScreen.tscn" id="12_victory"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="13_pause"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -30,6 +35,10 @@ texture = ExtResource("4_grass")
 position = Vector2(640, 360)
 
 [node name="PhiKiem" parent="Player/WeaponContainer" instance=ExtResource("5_phikiem")]
+
+[node name="HoaCau" parent="Player/WeaponContainer" instance=ExtResource("9_hoacau")]
+
+[node name="LoiKich" parent="Player/WeaponContainer" instance=ExtResource("10_loikich")]
 
 [node name="EnemySpawner" parent="." instance=ExtResource("3_spawner")]
 
@@ -95,6 +104,21 @@ offset_bottom = 50.0
 text = "Kills: 0"
 horizontal_alignment = 2
 
+[node name="AutoUpgradeToggle" type="CheckButton" parent="UI/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 180.0
+offset_bottom = 125.0
+text = "Auto Upgrade"
+toggle_mode = true
+
 [node name="GameOver" parent="." instance=ExtResource("7_gameover")]
 
 [node name="LevelUpUI" parent="." instance=ExtResource("8_levelup")]
+
+[node name="UpgradeNotification" parent="." instance=ExtResource("11_notification")]
+
+[node name="VictoryScreen" parent="." instance=ExtResource("12_victory")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("13_pause")]

@@ -63,6 +63,7 @@ signal run_started                                 # Run mới bắt đầu
 signal run_ended(is_victory: bool, gold: int)      # Run kết thúc
 signal game_paused                                 # Game pause
 signal game_resumed                                # Game resume từ pause
+signal victory                                     # Sống sót đủ 30 phút!
 
 # --- Time Signals ---
 signal time_updated(current_time: float)           # Mỗi giây trong run

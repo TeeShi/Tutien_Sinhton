@@ -114,6 +114,7 @@ var cooldown_multiplier: float = 1.0    # Nhân cooldown (< 1 = faster)
 var input_direction: Vector2 = Vector2.ZERO  # Hướng input hiện tại
 var is_invincible: bool = false              # Bất tử (sau khi bị hit)
 var invincibility_timer: float = 0.0
+var recovery_accumulator: float = 0.0        # Tích lũy HP hồi (vì HP là int)
 
 const INVINCIBILITY_DURATION: float = 0.5    # 0.5 giây bất tử sau hit
 
@@ -126,6 +127,9 @@ func _ready() -> void:
 	# Đăng ký player với GameManager
 	GameManager.player = self
 	
+	# Thêm vào group "player" để pickups có thể detect
+	add_to_group("player")
+	
 	# Initialize stats
 	_calculate_stats()
 	current_hp = max_hp
@@ -133,6 +137,29 @@ func _ready() -> void:
 	# Phát signal
 	Events.player_spawned.emit(self)
 	Events.player_health_changed.emit(current_hp, max_hp)
+	
+	# Connect MagnetArea để hút XP gems
+	# ┌─────────────────────────────────────────────────────────────────────┐
+	# │ BÀI HỌC: Magnet System cho Pickups                                 │
+	# ├─────────────────────────────────────────────────────────────────────┤
+	# │ MagnetArea là Area2D xung quanh player                              │
+	# │ Khi pickup (XPGem) vào vùng này → attract_to(player)                │
+	# │ Pickup sẽ bay về player, không cần player chạy đến                  │
+	# │                                                                     │
+	# │ TẠI SAO DÙNG area_entered THAY VÌ body_entered?                     │
+	# │   - XPGem là Area2D (không phải CharacterBody2D)                    │
+	# │   - body_entered chỉ detect physics bodies                          │
+	# │   - area_entered detect Area2D với Area2D                           │
+	# └─────────────────────────────────────────────────────────────────────┘
+	var magnet_area_node = get_node_or_null("MagnetArea")
+	if magnet_area_node:
+		magnet_area_node.area_entered.connect(_on_magnet_area_entered)
+		print("[DEBUG] MagnetArea connected! Collision mask: ", magnet_area_node.collision_mask)
+	else:
+		push_error("MagnetArea not found!")
+	
+	# Connect level up để tăng magnet
+	Events.level_up_ended.connect(_on_level_up)
 	
 	print("Player spawned at ", global_position)
 
@@ -234,24 +261,17 @@ func _move(_delta: float) -> void:
 func _handle_recovery(delta: float) -> void:
 	# Hồi HP theo thời gian
 	if recovery > 0 and current_hp < max_hp:
-		# ┌─────────────────────────────────────────────────────────────────┐
-		# │ BÀI HỌC: Tại sao * delta?                                       │
-		# ├─────────────────────────────────────────────────────────────────┤
-		# │ recovery = HP/giây (ví dụ: 1.0 = 1 HP mỗi giây)                 │
-		# │ delta = thời gian 1 frame (1/60 giây)                           │
-		# │                                                                 │
-		# │ Nếu không * delta:                                              │
-		# │   60 FPS → hồi 60 HP/giây                                       │
-		# │   30 FPS → hồi 30 HP/giây                                       │
-		# │   → Game không công bằng!                                       │
-		# │                                                                 │
-		# │ Với * delta:                                                    │
-		# │   60 FPS → mỗi frame hồi 1/60 HP → 1 HP/giây                    │
-		# │   30 FPS → mỗi frame hồi 1/30 HP → 1 HP/giây                    │
-		# │   → Luôn hồi đúng 1 HP/giây!                                    │
-		# └─────────────────────────────────────────────────────────────────┘
-		var heal_amount = recovery * delta
-		heal(heal_amount)
+		# Tích lũy HP hồi (vì HP là int, mỗi frame chỉ hồi 0.016...)
+		recovery_accumulator += recovery * delta
+		
+		# Khi tích lũy đủ 1 HP, heal và reset
+		if recovery_accumulator >= 1.0:
+			var heal_amount = int(recovery_accumulator)
+			recovery_accumulator -= heal_amount
+			heal(float(heal_amount))
+	else:
+		# Reset accumulator khi full HP
+		recovery_accumulator = 0.0
 
 
 func _handle_invincibility(delta: float) -> void:
@@ -358,3 +378,21 @@ func _notify_weapons_stat_changed() -> void:
 func add_hp_regen(amount: float) -> void:
 	recovery += amount
 	print("HP Regen increased to: ", recovery, " HP/s")
+
+
+## Khi pickup vào vùng hút
+func _on_magnet_area_entered(area: Area2D) -> void:
+	print("[DEBUG] Magnet detected: ", area.name, " - has attract_to: ", area.has_method("attract_to"))
+	# Check nếu là XPGem (có method attract_to)
+	if area.has_method("attract_to"):
+		area.attract_to(self)
+		print("[DEBUG] Attracting gem to player!")
+
+
+## Khi level up xong, tăng magnet radius
+func _on_level_up() -> void:
+	# Tăng magnet radius 5% mỗi level
+	var shape = magnet_area.get_node("CollisionShape2D").shape
+	if shape is CircleShape2D:
+		shape.radius *= 1.05
+		print("Magnet radius increased to: ", shape.radius)

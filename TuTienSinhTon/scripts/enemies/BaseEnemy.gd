@@ -303,10 +303,27 @@ func _drop_xp() -> void:
 	if xp_value <= 0:
 		return
 	
-	# TODO: Spawn XP gem tại vị trí chết
-	# Tạm thời chỉ add XP trực tiếp
-	GameManager.add_xp(xp_value)
-	Events.xp_gem_collected.emit(xp_value)
+	# Spawn XP gem(s) tại vị trí chết
+	var XP_GEM_SCENE = preload("res://scenes/pickups/XPGem.tscn")
+	
+	# Số gem = xp_value / 5, tối thiểu 1, tối đa 10
+	var gem_count = clampi(xp_value / 5, 1, 10)
+	var xp_per_gem = xp_value / gem_count
+	
+	for i in range(gem_count):
+		var gem = XP_GEM_SCENE.instantiate()
+		gem.global_position = global_position
+		gem.setup(xp_per_gem)
+		# ┌─────────────────────────────────────────────────────────────────┐
+		# │ BÀI HỌC: call_deferred()                                        │
+		# ├─────────────────────────────────────────────────────────────────┤
+		# │ Khi đang trong physics callback (như _die() từ collision)       │
+		# │ không thể add_child() ngay vì Godot đang "flushing queries"     │
+		# │                                                                 │
+		# │ call_deferred() = "Làm việc này SAU khi frame xong"             │
+		# │ An toàn hơn, tránh crash                                        │
+		# └─────────────────────────────────────────────────────────────────┘
+		get_tree().current_scene.call_deferred("add_child", gem)
 
 
 func _drop_gold() -> void:

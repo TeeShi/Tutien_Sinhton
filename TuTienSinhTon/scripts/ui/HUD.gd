@@ -16,6 +16,7 @@ extends Control
 @onready var time_label: Label = $TimeLabel
 @onready var level_label: Label = $LevelLabel
 @onready var kill_count_label: Label = $KillCountLabel
+@onready var auto_upgrade_toggle: CheckButton = $AutoUpgradeToggle
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -29,6 +30,10 @@ func _ready() -> void:
 	Events.time_updated.connect(_on_time_updated)
 	Events.enemy_killed.connect(_on_enemy_killed)
 	Events.level_up_started.connect(_on_level_up)
+	
+	# Connect auto upgrade toggle
+	if auto_upgrade_toggle:
+		auto_upgrade_toggle.toggled.connect(_on_auto_upgrade_toggled)
 	
 	print("HUD initialized!")
 
@@ -60,3 +65,11 @@ func _on_enemy_killed(total_kills: int) -> void:
 
 func _on_level_up(new_level: int) -> void:
 	level_label.text = "Level: %d" % new_level
+
+
+func _on_auto_upgrade_toggled(enabled: bool) -> void:
+	# Tìm LevelUpUI và update setting
+	var level_up_ui = get_tree().root.find_child("LevelUpUI", true, false)
+	if level_up_ui:
+		level_up_ui.auto_upgrade_enabled = enabled
+		print("Auto Upgrade: ", "ON" if enabled else "OFF")
