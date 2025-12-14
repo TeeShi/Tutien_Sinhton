@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ekmnii02vu08" path="res://scenes/systems/EnemySpawner.tscn" id="3_spawner"]
 [ext_resource type="Texture2D" uid="uid://bgwfj2v4iapj2" path="res://assets/backgrounds/grass.jpg" id="4_grass"]
 [ext_resource type="PackedScene" path="res://scenes/weapons/PhiKiem.tscn" id="5_phikiem"]
-[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="6_hud"]
+[ext_resource type="Script" uid="uid://2rl1air3117r" path="res://scripts/ui/HUD.gd" id="6_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameOver.tscn" id="7_gameover"]
 [ext_resource type="PackedScene" path="res://scenes/ui/LevelUpUI.tscn" id="8_levelup"]
 

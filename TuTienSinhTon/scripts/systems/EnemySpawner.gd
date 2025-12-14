@@ -39,9 +39,8 @@ class_name EnemySpawner
 
 const ENEMY_SCENES = {
 	"tieu_yeu_trung": preload("res://scenes/enemies/TieuYeuTrung.tscn"),
-	# Thêm enemy types khác sau:
-	# "cuong_thi": preload("res://scenes/enemies/CuongThi.tscn"),
-	# "oan_hon": preload("res://scenes/enemies/OanHon.tscn"),
+	"yeu_lang": preload("res://scenes/enemies/YeuLang.tscn"),
+	"bach_cot_tinh": preload("res://scenes/enemies/BachCotTinh.tscn"),
 }
 
 
@@ -66,25 +65,52 @@ var spawn_waves = {
 			["tieu_yeu_trung", 100],  # 100% chance
 		]
 	},
+	30: {  # 0:30 - Introduce Elite
+		"spawn_rate": 1.2,
+		"enemies": [
+			["tieu_yeu_trung", 90],   # 90%
+			["yeu_lang", 10],          # 10% Elite
+		]
+	},
 	60: {  # 1:00
 		"spawn_rate": 1.5,
 		"enemies": [
-			["tieu_yeu_trung", 100],
+			["tieu_yeu_trung", 80],
+			["yeu_lang", 20],
+		]
+	},
+	90: {  # 1:30 - BOSS TIME!
+		"spawn_rate": 2.0,
+		"enemies": [
+			["tieu_yeu_trung", 75],
+			["yeu_lang", 20],
+			["bach_cot_tinh", 5],     # 5% Boss!
 		]
 	},
 	120: {  # 2:00
-		"spawn_rate": 2.0,
+		"spawn_rate": 2.5,
 		"enemies": [
-			["tieu_yeu_trung", 100],
+			["tieu_yeu_trung", 70],
+			["yeu_lang", 25],
+			["bach_cot_tinh", 5],
 		]
 	},
-	300: {  # 5:00 - Spike
+	180: {  # 3:00 - More Elites
 		"spawn_rate": 3.0,
 		"enemies": [
-			["tieu_yeu_trung", 100],
+			["tieu_yeu_trung", 60],
+			["yeu_lang", 30],
+			["bach_cot_tinh", 10],
 		]
 	},
-	# Thêm waves sau...
+	300: {  # 5:00 - Chaos
+		"spawn_rate": 4.0,
+		"enemies": [
+			["tieu_yeu_trung", 50],
+			["yeu_lang", 35],
+			["bach_cot_tinh", 15],
+		]
+	},
 }
 
 

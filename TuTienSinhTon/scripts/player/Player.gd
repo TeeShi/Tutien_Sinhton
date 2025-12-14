@@ -352,3 +352,9 @@ func _notify_weapons_stat_changed() -> void:
 	for weapon in weapon_container.get_children():
 		if weapon.has_method("recalculate_stats"):
 			weapon.recalculate_stats()
+
+
+## Thêm HP regen rate
+func add_hp_regen(amount: float) -> void:
+	recovery += amount
+	print("HP Regen increased to: ", recovery, " HP/s")
