@@ -151,14 +151,22 @@ func _apply_upgrade(upgrade_id: String) -> void:
 		"speed":
 			player.base_move_speed *= 1.1
 		"proj_speed":
-			_apply_to_all_weapons(func(w):
-				w.base_speed *= 1.15
-				w.recalculate_stats()
-			)
+			# ┌─────────────────────────────────────────────────────────────────┐
+			# │ BÀI HỌC: Multiplier vs Base Value                               │
+			# ├─────────────────────────────────────────────────────────────────┤
+			# │ recalculate_stats() dùng: base_speed * player.speed_multiplier  │
+			# │ → Để upgrade có tác dụng, phải đổi speed_multiplier             │
+			# │ → Sau đó gọi recalculate_stats() cho TẤT CẢ weapons             │
+			# └─────────────────────────────────────────────────────────────────┘
+			player.speed_multiplier *= 1.15
+			_apply_to_all_weapons(func(w): w.recalculate_stats())
 		"cooldown":
-			_apply_to_all_weapons(func(w): w.base_cooldown *= 0.9)
+			# Giống proj_speed - dùng multiplier, không phải base
+			player.cooldown_multiplier *= 0.9  # -10% cooldown
+			_apply_to_all_weapons(func(w): w.recalculate_stats())
 		"area":
-			_apply_to_all_weapons(func(w): w.base_area *= 1.15)
+			player.area_multiplier *= 1.15  # +15% area
+			_apply_to_all_weapons(func(w): w.recalculate_stats())
 		"health":
 			player.max_hp += 20
 			player.current_hp = min(player.current_hp + 20, player.max_hp)

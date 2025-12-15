@@ -24,6 +24,9 @@ extends CanvasLayer
 func _ready() -> void:
 	visible = false
 	
+	# CRITICAL: Process even when paused
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
 	# Connect signals
 	Events.gold_changed.connect(_on_gold_changed)
 	close_button.pressed.connect(_close)
@@ -34,9 +37,11 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# Press P to toggle store
+	# Press Tab to toggle store, or Escape to close
 	if event.is_action_pressed("open_store"):
 		toggle()
+	elif visible and event.is_action_pressed("ui_cancel"):
+		_close()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -47,7 +52,9 @@ func toggle() -> void:
 	visible = !visible
 	if visible:
 		_refresh()
-		get_tree().paused = true
+		# Only pause if game is playing (not in menu)
+		if GameManager.current_state == GameManager.GameState.PLAYING:
+			get_tree().paused = true
 	else:
 		get_tree().paused = false
 

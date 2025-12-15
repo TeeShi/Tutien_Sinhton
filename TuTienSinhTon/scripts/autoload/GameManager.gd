@@ -123,6 +123,7 @@ var gold_collected: int = 0            # Gold thu được trong run này
 # └─────────────────────────────────────────────────────────────────────────┘
 var player: Node2D = null              # Reference đến Player node
 var main_scene: Node = null            # Reference đến Main scene
+var selected_character: Resource = null  # CharacterData đã chọn
 
 
 # ═══════════════════════════════════════════════════════════════════════════

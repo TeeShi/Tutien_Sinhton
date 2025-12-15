@@ -61,21 +61,34 @@ const ENEMY_SCENES = {
 # └─────────────────────────────────────────────────────────────────────────┘
 
 var spawn_waves = {
-	# Phase 1: 0:00 - 3:00 (TieuYeuTrung only)
+	# Phase 1: 0:00 - 2:00 (Làm quen - TieuYeuTrung only)
 	0: {
-		"spawn_rate": 1.0,
+		"spawn_rate": 0.5,  # Chậm để player làm quen
+		"enemies": [
+			["tieu_yeu_trung", 100],
+		]
+	},
+	30: { # 0:30 - tăng nhẹ
+		"spawn_rate": 0.8,
 		"enemies": [
 			["tieu_yeu_trung", 100],
 		]
 	},
 	60: { # 1:00
-		"spawn_rate": 1.3,
+		"spawn_rate": 1.0,
 		"enemies": [
 			["tieu_yeu_trung", 100],
 		]
 	},
 	
-	# Phase 2: 3:00 - 5:00 (+ CuongThi)
+	# Phase 2: 2:00 - 4:00 (+ CuongThi zombie)
+	120: { # 2:00
+		"spawn_rate": 1.2,
+		"enemies": [
+			["tieu_yeu_trung", 80],
+			["cuong_thi", 20],
+		]
+	},
 	180: { # 3:00
 		"spawn_rate": 1.5,
 		"enemies": [
@@ -83,77 +96,88 @@ var spawn_waves = {
 			["cuong_thi", 30],
 		]
 	},
+	
+	# Phase 3: 4:00 - 7:00 (+ OanHon ghost)
 	240: { # 4:00
 		"spawn_rate": 1.8,
 		"enemies": [
-			["tieu_yeu_trung", 60],
-			["cuong_thi", 40],
+			["tieu_yeu_trung", 55],
+			["cuong_thi", 25],
+			["oan_hon", 20],
 		]
 	},
-	
-	# Phase 3: 5:00 - 10:00 (+ OanHon, + YeuLang elite)
 	300: { # 5:00
 		"spawn_rate": 2.0,
 		"enemies": [
 			["tieu_yeu_trung", 50],
 			["cuong_thi", 25],
-			["oan_hon", 20],
-			["yeu_lang", 5],
-		]
-	},
-	420: { # 7:00
-		"spawn_rate": 2.5,
-		"enemies": [
-			["tieu_yeu_trung", 40],
-			["cuong_thi", 25],
 			["oan_hon", 25],
-			["yeu_lang", 10],
 		]
 	},
 	
-	# Phase 4: 10:00 - 15:00 (+ BachCotTinh boss)
+	# Phase 4: 7:00 - 10:00 (+ YeuLang elite)
+	420: { # 7:00
+		"spawn_rate": 2.3,
+		"enemies": [
+			["tieu_yeu_trung", 45],
+			["cuong_thi", 22],
+			["oan_hon", 23],
+			["yeu_lang", 10],
+		]
+	},
+	540: { # 9:00
+		"spawn_rate": 2.5,
+		"enemies": [
+			["tieu_yeu_trung", 40],
+			["cuong_thi", 20],
+			["oan_hon", 25],
+			["yeu_lang", 15],
+		]
+	},
+	
+	# Phase 5: 10:00 - 15:00 (Boss appears occasionally)
 	600: { # 10:00
-		"spawn_rate": 3.0,
+		"spawn_rate": 2.8,
 		"enemies": [
 			["tieu_yeu_trung", 35],
 			["cuong_thi", 20],
 			["oan_hon", 25],
-			["yeu_lang", 15],
-			["bach_cot_tinh", 5],
+			["yeu_lang", 17],
+			["bach_cot_tinh", 3],  # Rare boss
 		]
 	},
 	780: { # 13:00
-		"spawn_rate": 3.5,
+		"spawn_rate": 3.2,
 		"enemies": [
 			["tieu_yeu_trung", 30],
 			["cuong_thi", 20],
 			["oan_hon", 25],
-			["yeu_lang", 18],
-			["bach_cot_tinh", 7],
+			["yeu_lang", 20],
+			["bach_cot_tinh", 5],
 		]
 	},
 	
-	# Phase 5: 15:00 - 20:00 (Intense)
+	# Phase 6: 15:00 - 20:00 (Intense)
 	900: { # 15:00
-		"spawn_rate": 4.0,
+		"spawn_rate": 3.5,
 		"enemies": [
 			["tieu_yeu_trung", 25],
 			["cuong_thi", 20],
 			["oan_hon", 25],
-			["yeu_lang", 20],
-			["bach_cot_tinh", 10],
+			["yeu_lang", 22],
+			["bach_cot_tinh", 8],
 		]
 	},
 	
-	# Phase 6: 20:00+ (Maximum chaos)
+	# Phase 7: 20:00+ (Maximum chaos - endgame)
 	1200: { # 20:00
-		"spawn_rate": 5.0,
+		"spawn_rate": 4.0,
 		"enemies": [
 			["tieu_yeu_trung", 20],
-			["cuong_thi", 20],
+			["cuong_thi", 18],
 			["oan_hon", 25],
-			["yeu_lang", 22],
-			["bach_cot_tinh", 13],
+			["yeu_lang", 25],
+			["bach_cot_tinh", 12],
 		]
 	},
 }

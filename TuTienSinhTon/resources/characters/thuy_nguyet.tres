@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+character_id = "thuy_nguyet"
+character_name = "Thủy Nguyệt"
+linh_can = "Thủy"
+lore = "Đệ tử phái Hàn Băng, tu luyện Thủy Hệ công pháp."
+is_unlocked_by_default = true
+unlock_condition = ""
+starting_weapon_id = "loi_kich"
+bonus_cooldown = -0.15
+cooldown_per_level = -0.03
+sprite_color = Color(0.6, 0.8, 1.0, 1.0)

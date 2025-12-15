@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+character_id = "hoa_linh_nhi"
+character_name = "Hỏa Linh Nhi"
+linh_can = "Hỏa"
+lore = "Sinh ra trong lửa núi, thân mang Chân Hỏa."
+is_unlocked_by_default = true
+unlock_condition = ""
+starting_weapon_id = "hoa_cau"
+bonus_area = 0.3
+area_per_level = 0.05
+sprite_color = Color(1.0, 0.6, 0.4, 1.0)

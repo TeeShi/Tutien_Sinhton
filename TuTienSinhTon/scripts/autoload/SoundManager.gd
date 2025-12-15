@@ -105,6 +105,8 @@ func play_sfx(sound_name: String, volume_db: float = 0.0, pitch_scale: float = 1
 			stream = _generate_level_up_sound()
 		"gem_collect":
 			stream = _generate_gem_sound()
+		"gold_collect":
+			stream = _generate_gold_sound()
 		"player_hurt":
 			stream = _generate_hurt_sound()
 		"boss_spawn":
@@ -130,6 +132,10 @@ func play_level_up() -> void:
 func play_gem_collect() -> void:
 	play_sfx("gem_collect", -25.0, randf_range(1.0, 1.3))
 
+func play_gold_collect() -> void:
+	# Gold pickup sound - higher pitch than gem
+	play_sfx("gold_collect", -22.0, randf_range(0.9, 1.1))
+
 func play_player_hurt() -> void:
 	play_sfx("player_hurt", -18.0, 1.0)
 
@@ -153,42 +159,77 @@ func _play_from_pool(stream: AudioStream, volume_db: float, pitch_scale: float) 
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#                     PROCEDURAL SOUND GENERATION
+#                     REAL AUDIO ASSETS (Kenney Pack)
 # ═══════════════════════════════════════════════════════════════════════════
 # ┌─────────────────────────────────────────────────────────────────────────┐
-# │ BÀI HỌC: Procedural Audio                                               │
+# │ BÀI HỌC: Tổ chức Audio Assets                                           │
 # ├─────────────────────────────────────────────────────────────────────────┤
-# │ Thay vì dùng file .wav, có thể tạo sound bằng code:                     │
-# │   - AudioStreamGenerator: Tạo waveform real-time                        │
-# │   - Placeholder sounds: Dùng tạm khi chưa có assets                     │
+# │ 1. PRELOAD: Load sounds khi game khởi động (không lag khi play)        │
+# │    var sound = preload("res://path/to/sound.ogg")                       │
 # │                                                                         │
-# │ Đây là cách tạo "programmer sounds" để test                             │
-# │ Sau này có thể thay bằng file sound thật                                │
+# │ 2. ARRAY SOUNDS: Nhiều variations → game không bị lặp, tự nhiên hơn    │
+# │    var sounds = [sound1, sound2, sound3]                                │
+# │    sounds[randi() % sounds.size()]  # Random pick                       │
+# │                                                                         │
+# │ 3. OGG FORMAT: Nhẹ hơn WAV, tốt cho game                                │
+# │                                                                         │
+# │ 4. FOLDER STRUCTURE:                                                    │
+# │    sfx/player/   - Footsteps, hurt, death                               │
+# │    sfx/combat/   - Weapon swings, hits                                  │
+# │    sfx/pickup/   - Coins, gems, items                                   │
+# │    sfx/ui/       - Clicks, level up, menus                              │
 # └─────────────────────────────────────────────────────────────────────────┘
 
+# Combat sounds - nhiều variations để không bị lặp
+var attack_sounds = [
+	preload("res://assets/audio/sfx/combat/knifeSlice.ogg"),
+	preload("res://assets/audio/sfx/combat/knifeSlice2.ogg"),
+	preload("res://assets/audio/sfx/combat/chop.ogg"),
+]
+
+var hit_sounds = [
+	preload("res://assets/audio/sfx/combat/drawKnife1.ogg"),
+	preload("res://assets/audio/sfx/combat/drawKnife2.ogg"),
+]
+
+# Pickup sounds
+var gem_sounds = [
+	preload("res://assets/audio/sfx/pickup/handleCoins.ogg"),
+	preload("res://assets/audio/sfx/pickup/handleCoins2.ogg"),
+]
+
+# UI sounds
+var level_up_sound = preload("res://assets/audio/sfx/ui/bookOpen.ogg")
+var menu_click_sound = preload("res://assets/audio/sfx/ui/metalClick.ogg")
+
+# Player sounds
+var hurt_sounds = [
+	preload("res://assets/audio/sfx/player/cloth1.ogg"),
+	preload("res://assets/audio/sfx/player/cloth2.ogg"),
+]
+
 func _generate_attack_sound() -> AudioStream:
-	# Tạo một tiếng "whoosh" đơn giản
-	return _create_noise_burst(0.1, 800.0, 0.3)
+	return attack_sounds[randi() % attack_sounds.size()]
 
 func _generate_hit_sound() -> AudioStream:
-	# Tạo tiếng "thump"
-	return _create_noise_burst(0.08, 200.0, 0.5)
+	return hit_sounds[randi() % hit_sounds.size()]
 
 func _generate_level_up_sound() -> AudioStream:
-	# Tạo tiếng "ding" (sẽ cần file thật sau)
-	return _create_noise_burst(0.3, 1200.0, 0.4)
+	return level_up_sound
 
 func _generate_gem_sound() -> AudioStream:
-	# Tạo tiếng "bling" nhỏ
-	return _create_noise_burst(0.05, 2000.0, 0.2)
+	return gem_sounds[randi() % gem_sounds.size()]
+
+func _generate_gold_sound() -> AudioStream:
+	# Gold dùng coins sound nhưng pitch khác gem
+	return gem_sounds[randi() % gem_sounds.size()]
 
 func _generate_hurt_sound() -> AudioStream:
-	# Tạo tiếng "oof"
-	return _create_noise_burst(0.15, 150.0, 0.6)
+	return hurt_sounds[randi() % hurt_sounds.size()]
 
 func _generate_boss_sound() -> AudioStream:
-	# Tạo tiếng bass nặng
-	return _create_noise_burst(0.5, 80.0, 0.8)
+	# Dùng creak cho hiệu ứng boss (scary)
+	return preload("res://assets/audio/sfx/environment/creak1.ogg")
 
 
 func _create_noise_burst(duration: float, frequency: float, volume: float) -> AudioStreamWAV:

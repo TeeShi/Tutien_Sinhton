@@ -355,5 +355,18 @@ func _drop_gold() -> void:
 	if gold_value <= 0:
 		return
 	
-	# Add gold to meta progression (vĩnh viễn)
-	MetaManager.add_gold(gold_value)
+	# ┌─────────────────────────────────────────────────────────────────────┐
+	# │ BÀI HỌC: Visual Feedback cho Pickups                               │
+	# ├─────────────────────────────────────────────────────────────────────┤
+	# │ TRƯỚC: MetaManager.add_gold(gold_value) → Add thầm lặng            │
+	# │ SAU: Spawn GoldPickup visual như XP gem                            │
+	# │                                                                     │
+	# │ Player cần THẤY gold rơi → cảm giác thỏa mãn hơn!                  │
+	# └─────────────────────────────────────────────────────────────────────┘
+	
+	var GOLD_SCENE = preload("res://scenes/pickups/GoldPickup.tscn")
+	var gold_pickup = GOLD_SCENE.instantiate()
+	gold_pickup.global_position = global_position
+	gold_pickup.setup(gold_value)
+	get_tree().current_scene.call_deferred("add_child", gold_pickup)
+

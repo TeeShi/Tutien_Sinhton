@@ -99,7 +99,8 @@ signal evolution_ready(evolved_weapon_id: String)  # Có thể evolve
 signal evolution_triggered(evolved_weapon_id: String) # Đã evolve
 
 # --- Pickup Signals ---
-signal gold_changed(total_gold: int)               # Gold thay đổi
+signal gold_changed(total_gold: int)               # Gold thay đổi (tổng)
+signal gold_collected(amount: int)                 # Nhặt được gold (từng lần)
 signal chest_opened                                # Mở treasure chest
 
 # --- UI Signals ---

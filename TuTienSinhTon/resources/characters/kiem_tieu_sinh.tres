@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+character_id = "kiem_tieu_sinh"
+character_name = "Kiếm Tiểu Sinh"
+linh_can = "Kim"
+lore = "Đệ tử phái Thanh Vân, chuyên về kiếm đạo."
+is_unlocked_by_default = true
+unlock_condition = ""
+starting_weapon_id = "phi_kiem"
+bonus_damage = 0.1
+damage_per_level = 0.05
+sprite_color = Color(0.8, 0.9, 1.0, 1.0)
