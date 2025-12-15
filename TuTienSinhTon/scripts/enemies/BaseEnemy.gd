@@ -29,9 +29,9 @@ class_name BaseEnemy
 # ═══════════════════════════════════════════════════════════════════════════
 
 enum EnemyType {
-	SWARM,    # Yêu Trùng - rất nhiều, yếu
-	ELITE,    # Yêu Thú - ít, mạnh hơn
-	BOSS      # Yêu Vương - hiếm, rất mạnh
+	SWARM, # Yêu Trùng - rất nhiều, yếu
+	ELITE, # Yêu Thú - ít, mạnh hơn
+	BOSS # Yêu Vương - hiếm, rất mạnh
 }
 
 
@@ -46,14 +46,14 @@ enum EnemyType {
 
 @export_group("Stats")
 @export var max_hp: int = 10
-@export var damage: int = 5             # Damage gây cho player khi chạm
+@export var damage: int = 5 # Damage gây cho player khi chạm
 @export var move_speed: float = 50.0
-@export var xp_value: int = 1           # XP drop khi chết
-@export var gold_value: int = 0         # Gold drop khi chết
+@export var xp_value: int = 1 # XP drop khi chết
+@export var gold_value: int = 0 # Gold drop khi chết
 
 @export_group("Combat")
-@export var attack_cooldown: float = 0.5  # Thời gian giữa các lần gây damage
-@export var knockback_resistance: float = 0.0  # 0 = bị đẩy full, 1 = không bị đẩy
+@export var attack_cooldown: float = 0.5 # Thời gian giữa các lần gây damage
+@export var knockback_resistance: float = 0.0 # 0 = bị đẩy full, 1 = không bị đẩy
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -62,8 +62,8 @@ enum EnemyType {
 
 var current_hp: int = 10
 var is_dead: bool = false
-var target: Node2D = null            # Thường là player
-var attack_timer: float = 0.0        # Cooldown giữa các lần attack
+var target: Node2D = null # Thường là player
+var attack_timer: float = 0.0 # Cooldown giữa các lần attack
 var can_attack: bool = true
 
 
@@ -73,7 +73,11 @@ var can_attack: bool = true
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision: CollisionShape2D = $CollisionShape2D
-@onready var hitbox: Area2D = $Hitbox  # Area để detect player collision
+@onready var hitbox: Area2D = $Hitbox # Area để detect player collision
+
+# Debug
+const DEBUG_SHOW_NAMES: bool = true # Toggle để hiển thị tên enemy
+var name_label: Label = null
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -89,6 +93,10 @@ func _ready() -> void:
 	
 	# Set target là player
 	target = GameManager.player
+	
+	# Debug: Hiển thị tên enemy
+	if DEBUG_SHOW_NAMES:
+		_create_name_label()
 	
 	# Connect hitbox signal
 	# ┌─────────────────────────────────────────────────────────────────────┐
@@ -111,6 +119,22 @@ func _ready() -> void:
 	
 	# Notify spawn
 	Events.enemy_spawned.emit(self)
+
+
+func _create_name_label() -> void:
+	name_label = Label.new()
+	name_label.text = enemy_name
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.position = Vector2(-30, -30) # Phía trên đầu
+	
+	var settings = LabelSettings.new()
+	settings.font_size = 10
+	settings.font_color = Color.WHITE
+	settings.outline_size = 2
+	settings.outline_color = Color.BLACK
+	name_label.label_settings = settings
+	
+	add_child(name_label)
 
 
 func _physics_process(delta: float) -> void:
@@ -186,7 +210,6 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	# │ Đây là cách an toàn để check type trước khi gọi methods             │
 	# │ Tránh runtime error khi body không phải Player                      │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	if body is Player and can_attack:
 		# Gây damage cho player
 		body.take_damage(damage)
@@ -207,6 +230,9 @@ func take_damage(amount: float, knockback_direction: Vector2 = Vector2.ZERO) -> 
 	
 	# Show damage number
 	Events.show_damage_number.emit(actual_damage, global_position, false)
+	
+	# Play hit sound
+	SoundManager.play_hit()
 	
 	# Knockback
 	if knockback_direction != Vector2.ZERO:
@@ -299,7 +325,6 @@ func _drop_xp() -> void:
 	# │   - Phải add_child() thì object mới tồn tại trong game              │
 	# │   - Object mới tạo chưa có parent = chưa trong scene tree           │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	if xp_value <= 0:
 		return
 	
@@ -330,6 +355,5 @@ func _drop_gold() -> void:
 	if gold_value <= 0:
 		return
 	
-	# TODO: Spawn gold pickup
-	# Tạm thời add trực tiếp
-	GameManager.add_gold(gold_value)
+	# Add gold to meta progression (vĩnh viễn)
+	MetaManager.add_gold(gold_value)

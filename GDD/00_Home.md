@@ -58,8 +58,8 @@
 ### 🎨 Art & Audio
 | Trang | Mô tả |
 |-------|-------|
+| [[50_Audio]] | 🎵 Audio Design & Workflow (Template) |
 | [[60_Art_Style]] | Phong cách nghệ thuật |
-| [[61_Audio]] | Âm thanh & nhạc |
 | [[62_UI]] | Giao diện người dùng |
 
 ### 💰 Business

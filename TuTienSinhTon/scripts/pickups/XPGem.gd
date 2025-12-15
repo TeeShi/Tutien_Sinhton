@@ -144,5 +144,8 @@ func _collect() -> void:
 	GameManager.add_xp(xp_value)
 	Events.xp_gem_collected.emit(xp_value)
 	
+	# Play sound!
+	SoundManager.play_gem_collect()
+	
 	# Xóa gem
 	queue_free()

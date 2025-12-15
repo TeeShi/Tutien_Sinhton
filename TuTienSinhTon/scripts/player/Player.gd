@@ -47,12 +47,12 @@ class_name Player
 # └─────────────────────────────────────────────────────────────────────────┘
 
 @export_group("Base Stats")
-@export var base_max_hp: int = 100          # Máu tối đa cơ bản
-@export var base_move_speed: float = 200.0  # Tốc độ di chuyển cơ bản
-@export var base_recovery: float = 0.0      # HP hồi/giây cơ bản
+@export var base_max_hp: int = 100 # Máu tối đa cơ bản
+@export var base_move_speed: float = 200.0 # Tốc độ di chuyển cơ bản
+@export var base_recovery: float = 0.0 # HP hồi/giây cơ bản
 
 @export_group("Pickup")
-@export var base_magnet_radius: float = 50.0  # Bán kính hút XP/Gold
+@export var base_magnet_radius: float = 50.0 # Bán kính hút XP/Gold
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -70,11 +70,13 @@ var recovery: float = 0.0
 var magnet_radius: float = 50.0
 
 # Stat multipliers (từ passives và powerups)
-var might_multiplier: float = 1.0       # Nhân damage
-var area_multiplier: float = 1.0        # Nhân AoE size
-var speed_multiplier: float = 1.0       # Nhân projectile speed
-var duration_multiplier: float = 1.0    # Nhân effect duration
-var cooldown_multiplier: float = 1.0    # Nhân cooldown (< 1 = faster)
+var might_multiplier: float = 1.0 # Nhân damage
+var damage_multiplier: float = 1.0 # Từ MetaManager PowerUps
+var area_multiplier: float = 1.0 # Nhân AoE size
+var speed_multiplier: float = 1.0 # Nhân projectile speed
+var duration_multiplier: float = 1.0 # Nhân effect duration
+var cooldown_multiplier: float = 1.0 # Nhân cooldown (< 1 = faster)
+var xp_multiplier: float = 1.0 # Nhân XP gained
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -111,12 +113,12 @@ var cooldown_multiplier: float = 1.0    # Nhân cooldown (< 1 = faster)
 #                           INTERNAL STATE
 # ═══════════════════════════════════════════════════════════════════════════
 
-var input_direction: Vector2 = Vector2.ZERO  # Hướng input hiện tại
-var is_invincible: bool = false              # Bất tử (sau khi bị hit)
+var input_direction: Vector2 = Vector2.ZERO # Hướng input hiện tại
+var is_invincible: bool = false # Bất tử (sau khi bị hit)
 var invincibility_timer: float = 0.0
-var recovery_accumulator: float = 0.0        # Tích lũy HP hồi (vì HP là int)
+var recovery_accumulator: float = 0.0 # Tích lũy HP hồi (vì HP là int)
 
-const INVINCIBILITY_DURATION: float = 0.5    # 0.5 giây bất tử sau hit
+const INVINCIBILITY_DURATION: float = 0.5 # 0.5 giây bất tử sau hit
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -180,7 +182,6 @@ func _physics_process(delta: float) -> void:
 	# │                                                                     │
 	# │ → Player movement PHẢI ở _physics_process!                          │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	# Xử lý input
 	_handle_input()
 	
@@ -215,12 +216,11 @@ func _handle_input() -> void:
 	# │ Trả về Vector2 đã NORMALIZED (độ dài = 1)                           │
 	# │ → Di chuyển chéo không nhanh hơn di chuyển thẳng                    │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	input_direction = Input.get_vector(
-		"move_left",   # Negative X
-		"move_right",  # Positive X
-		"move_up",     # Negative Y (↑ trong Godot là -Y!)
-		"move_down"    # Positive Y
+		"move_left", # Negative X
+		"move_right", # Positive X
+		"move_up", # Negative Y (↑ trong Godot là -Y!)
+		"move_down" # Positive Y
 	)
 
 
@@ -245,7 +245,6 @@ func _move(_delta: float) -> void:
 	# │ Công thức: velocity = direction * speed                             │
 	# │ VD: Đi phải (1, 0) * 200 = (200, 0) pixels/giây                     │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	velocity = input_direction * move_speed
 	move_and_slide()
 	
@@ -290,11 +289,15 @@ func take_damage(amount: int) -> void:
 	
 	# Giảm HP
 	current_hp -= amount
-	current_hp = max(0, current_hp)  # Không xuống dưới 0
+	current_hp = max(0, current_hp) # Không xuống dưới 0
 	
 	# Phát signal
 	Events.player_health_changed.emit(current_hp, max_hp)
 	Events.show_damage_number.emit(amount, global_position, false)
+	Events.player_damaged.emit(amount, current_hp) # For camera shake
+	
+	# Play hurt sound
+	SoundManager.play_player_hurt()
 	
 	print("Player took ", amount, " damage! HP: ", current_hp, "/", max_hp)
 	
@@ -342,7 +345,6 @@ func _calculate_stats() -> void:
 	# │   Passive "Linh Thạch Hộ Tâm" Lv3: +60% Max HP                      │
 	# │   → Final HP = 100 × (1 + 0.2 + 0.6) = 180                          │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	# TODO: Lấy bonuses từ PowerUp system và Passive system
 	# Tạm thời dùng base stats
 	max_hp = base_max_hp
@@ -361,7 +363,7 @@ func add_stat_multiplier(stat: String, value: float) -> void:
 		"area": area_multiplier += value
 		"speed": speed_multiplier += value
 		"duration": duration_multiplier += value
-		"cooldown": cooldown_multiplier -= value  # -cooldown = faster
+		"cooldown": cooldown_multiplier -= value # -cooldown = faster
 	
 	# Recalculate weapons
 	_notify_weapons_stat_changed()

@@ -24,8 +24,8 @@ class_name EnemySpawner
 # ═══════════════════════════════════════════════════════════════════════════
 
 @export_group("Spawn Settings")
-@export var spawn_radius_min: float = 400.0  # Khoảng cách tối thiểu spawn từ player
-@export var spawn_radius_max: float = 600.0  # Khoảng cách tối đa
+@export var spawn_radius_min: float = 400.0 # Khoảng cách tối thiểu spawn từ player
+@export var spawn_radius_max: float = 600.0 # Khoảng cách tối đa
 @export var max_enemies_on_screen: int = 200 # Giới hạn để tối ưu performance
 
 
@@ -39,6 +39,8 @@ class_name EnemySpawner
 
 const ENEMY_SCENES = {
 	"tieu_yeu_trung": preload("res://scenes/enemies/TieuYeuTrung.tscn"),
+	"cuong_thi": preload("res://scenes/enemies/CuongThi.tscn"),
+	"oan_hon": preload("res://scenes/enemies/OanHon.tscn"),
 	"yeu_lang": preload("res://scenes/enemies/YeuLang.tscn"),
 	"bach_cot_tinh": preload("res://scenes/enemies/BachCotTinh.tscn"),
 }
@@ -59,56 +61,99 @@ const ENEMY_SCENES = {
 # └─────────────────────────────────────────────────────────────────────────┘
 
 var spawn_waves = {
-	0: {  # 0:00 - Start
+	# Phase 1: 0:00 - 3:00 (TieuYeuTrung only)
+	0: {
 		"spawn_rate": 1.0,
 		"enemies": [
-			["tieu_yeu_trung", 100],  # 100% chance
+			["tieu_yeu_trung", 100],
 		]
 	},
-	30: {  # 0:30 - Introduce Elite
-		"spawn_rate": 1.2,
+	60: { # 1:00
+		"spawn_rate": 1.3,
 		"enemies": [
-			["tieu_yeu_trung", 90],   # 90%
-			["yeu_lang", 10],          # 10% Elite
+			["tieu_yeu_trung", 100],
 		]
 	},
-	60: {  # 1:00
+	
+	# Phase 2: 3:00 - 5:00 (+ CuongThi)
+	180: { # 3:00
 		"spawn_rate": 1.5,
 		"enemies": [
-			["tieu_yeu_trung", 80],
-			["yeu_lang", 20],
+			["tieu_yeu_trung", 70],
+			["cuong_thi", 30],
 		]
 	},
-	90: {  # 1:30 - BOSS TIME!
+	240: { # 4:00
+		"spawn_rate": 1.8,
+		"enemies": [
+			["tieu_yeu_trung", 60],
+			["cuong_thi", 40],
+		]
+	},
+	
+	# Phase 3: 5:00 - 10:00 (+ OanHon, + YeuLang elite)
+	300: { # 5:00
 		"spawn_rate": 2.0,
 		"enemies": [
-			["tieu_yeu_trung", 75],
-			["yeu_lang", 20],
-			["bach_cot_tinh", 5],     # 5% Boss!
+			["tieu_yeu_trung", 50],
+			["cuong_thi", 25],
+			["oan_hon", 20],
+			["yeu_lang", 5],
 		]
 	},
-	120: {  # 2:00
+	420: { # 7:00
 		"spawn_rate": 2.5,
 		"enemies": [
-			["tieu_yeu_trung", 70],
-			["yeu_lang", 25],
+			["tieu_yeu_trung", 40],
+			["cuong_thi", 25],
+			["oan_hon", 25],
+			["yeu_lang", 10],
+		]
+	},
+	
+	# Phase 4: 10:00 - 15:00 (+ BachCotTinh boss)
+	600: { # 10:00
+		"spawn_rate": 3.0,
+		"enemies": [
+			["tieu_yeu_trung", 35],
+			["cuong_thi", 20],
+			["oan_hon", 25],
+			["yeu_lang", 15],
 			["bach_cot_tinh", 5],
 		]
 	},
-	180: {  # 3:00 - More Elites
-		"spawn_rate": 3.0,
+	780: { # 13:00
+		"spawn_rate": 3.5,
 		"enemies": [
-			["tieu_yeu_trung", 60],
-			["yeu_lang", 30],
+			["tieu_yeu_trung", 30],
+			["cuong_thi", 20],
+			["oan_hon", 25],
+			["yeu_lang", 18],
+			["bach_cot_tinh", 7],
+		]
+	},
+	
+	# Phase 5: 15:00 - 20:00 (Intense)
+	900: { # 15:00
+		"spawn_rate": 4.0,
+		"enemies": [
+			["tieu_yeu_trung", 25],
+			["cuong_thi", 20],
+			["oan_hon", 25],
+			["yeu_lang", 20],
 			["bach_cot_tinh", 10],
 		]
 	},
-	300: {  # 5:00 - Chaos
-		"spawn_rate": 4.0,
+	
+	# Phase 6: 20:00+ (Maximum chaos)
+	1200: { # 20:00
+		"spawn_rate": 5.0,
 		"enemies": [
-			["tieu_yeu_trung", 50],
-			["yeu_lang", 35],
-			["bach_cot_tinh", 15],
+			["tieu_yeu_trung", 20],
+			["cuong_thi", 20],
+			["oan_hon", 25],
+			["yeu_lang", 22],
+			["bach_cot_tinh", 13],
 		]
 	},
 }
@@ -143,7 +188,7 @@ func _process(delta: float) -> void:
 	spawn_timer -= delta
 	if spawn_timer <= 0:
 		_try_spawn_enemy()
-		spawn_timer = 1.0 / current_spawn_rate  # Reset timer
+		spawn_timer = 1.0 / current_spawn_rate # Reset timer
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -211,11 +256,10 @@ func _get_spawn_position() -> Vector2:
 	# │                                                                     │
 	# │ Hoặc dùng Vector2.from_angle(angle) * distance                      │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	var player_pos = GameManager.player.global_position
 	
 	# Random angle (0 to 2π)
-	var angle = randf() * TAU  # TAU = 2π
+	var angle = randf() * TAU # TAU = 2π
 	
 	# Random distance trong khoảng min-max
 	var distance = randf_range(spawn_radius_min, spawn_radius_max)
@@ -244,7 +288,6 @@ func _get_random_enemy_from_pool() -> String:
 	# │                                                                     │
 	# │ Công thức này LUÔN đúng với bất kỳ weights nào                      │
 	# └─────────────────────────────────────────────────────────────────────┘
-	
 	if current_enemy_pool.is_empty():
 		return ""
 	

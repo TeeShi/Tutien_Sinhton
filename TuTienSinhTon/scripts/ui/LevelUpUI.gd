@@ -32,6 +32,7 @@ var available_upgrades: Array = [
 	{"id": "regen", "name": "+1 Hồi Máu", "description": "Hồi 1 HP mỗi giây"},
 	{"id": "amount", "name": "+1 Projectile", "description": "Thêm 1 projectile cho vũ khí"},
 	{"id": "magnet", "name": "+20% Hút XP", "description": "Tăng phạm vi hút XP"},
+	{"id": "new_weapon_batquai", "name": "Bát Quái Trận", "description": "3 cầu thể xoay quanh bảo hộ"},
 ]
 
 var current_options: Array = []
@@ -70,6 +71,9 @@ func _on_level_up_started(new_level: int) -> void:
 	title_label.text = "ĐỘT PHÁ! CẢNH GIỚI %d" % new_level
 	_generate_options()
 	visible = true
+	
+	# Play level up sound!
+	SoundManager.play_level_up()
 	
 	if auto_upgrade_enabled:
 		# Disable buttons, bắt đầu gacha
@@ -114,7 +118,7 @@ func _generate_options() -> void:
 
 func _select_option(index: int) -> void:
 	if gacha and gacha.is_running:
-		return  # Không cho click khi đang gacha
+		return # Không cho click khi đang gacha
 	
 	var selected = current_options[index]
 	_apply_upgrade(selected["id"])
@@ -147,7 +151,7 @@ func _apply_upgrade(upgrade_id: String) -> void:
 		"speed":
 			player.base_move_speed *= 1.1
 		"proj_speed":
-			_apply_to_all_weapons(func(w): 
+			_apply_to_all_weapons(func(w):
 				w.base_speed *= 1.15
 				w.recalculate_stats()
 			)
@@ -163,7 +167,7 @@ func _apply_upgrade(upgrade_id: String) -> void:
 			if player.has_method("add_hp_regen"):
 				player.add_hp_regen(1)
 		"amount":
-			_apply_to_all_weapons(func(w): 
+			_apply_to_all_weapons(func(w):
 				w.base_amount += 1
 				w.recalculate_stats()
 			)
@@ -172,6 +176,27 @@ func _apply_upgrade(upgrade_id: String) -> void:
 				var shape = player.get_node("MagnetArea/CollisionShape2D").shape
 				if shape is CircleShape2D:
 					shape.radius *= 1.2
+		"new_weapon_batquai":
+			_add_new_weapon("res://scenes/weapons/BatQuaiTran.tscn")
+
+
+func _add_new_weapon(weapon_path: String) -> void:
+	var player = GameManager.player
+	if not player or not player.has_node("WeaponContainer"):
+		return
+	
+	var weapon_container = player.get_node("WeaponContainer")
+	var weapon_scene = load(weapon_path)
+	if weapon_scene:
+		var weapon = weapon_scene.instantiate()
+		weapon_container.add_child(weapon)
+		print("Added new weapon: ", weapon_path)
+		
+		# Xóa option này khỏi pool để không xuất hiện lại
+		for i in range(available_upgrades.size() - 1, -1, -1):
+			if available_upgrades[i]["id"] == "new_weapon_batquai":
+				available_upgrades.remove_at(i)
+				break
 
 
 func _apply_to_all_weapons(callback: Callable) -> void:

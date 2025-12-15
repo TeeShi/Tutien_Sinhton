@@ -64,7 +64,7 @@ signal selection_finished(selected_index: int)
 # ├─────────────────────────────────────────────────────────────────────────┤
 # │ @export LÀ GÌ?                                                          │
 # │   - Biến có thể chỉnh trong Godot Editor (Inspector panel)              │
-# │   - Không cần sửa code để thay đổi giá trị                              │
+# │   - Không cần sửa code để thaygiá tr đổi ị                              │
 # │   - Designer có thể tweak mà không cần programmer                        │
 # │                                                                         │
 # │ GAME FEEL:                                                              │

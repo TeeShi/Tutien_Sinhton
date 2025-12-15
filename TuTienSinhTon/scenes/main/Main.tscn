@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://1yh8kgam3qt0"]
+[gd_scene load_steps=17 format=3 uid="uid://1yh8kgam3qt0"]
 
 [ext_resource type="Script" uid="uid://duendb7s7esnx" path="res://scripts/main/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bx8kf7vqrp1jy" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -13,12 +13,16 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/UpgradeNotification.tscn" id="11_notification"]
 [ext_resource type="PackedScene" path="res://scenes/ui/VictoryScreen.tscn" id="12_victory"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="13_pause"]
+[ext_resource type="Script" path="res://scripts/main/CameraShake.gd" id="14_camera"]
+[ext_resource type="Script" path="res://scripts/ui/DamageNumberSpawner.gd" id="15_dmgspawn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PowerUpStore.tscn" id="16_store"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
+script = ExtResource("14_camera")
 
 [node name="Background" type="ColorRect" parent="."]
 z_index = -100
@@ -41,6 +45,9 @@ position = Vector2(640, 360)
 [node name="LoiKich" parent="Player/WeaponContainer" instance=ExtResource("10_loikich")]
 
 [node name="EnemySpawner" parent="." instance=ExtResource("3_spawner")]
+
+[node name="DamageNumberSpawner" type="Node" parent="."]
+script = ExtResource("15_dmgspawn")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -122,3 +129,6 @@ toggle_mode = true
 [node name="VictoryScreen" parent="." instance=ExtResource("12_victory")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
+
+[node name="PowerUpStore" parent="." instance=ExtResource("16_store")]
+

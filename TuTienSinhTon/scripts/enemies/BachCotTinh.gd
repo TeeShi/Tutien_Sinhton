@@ -18,7 +18,7 @@ extends BaseEnemy
 
 
 # Boss-specific variables
-var is_enraged: bool = false  # Boost stats khi HP thấp
+var is_enraged: bool = false # Boost stats khi HP thấp
 
 
 func _ready() -> void:
@@ -30,11 +30,11 @@ func _ready() -> void:
 	# Stats - Boss level
 	max_hp = 100
 	damage = 20
-	move_speed = 40.0  # Chậm nhưng đáng sợ
+	move_speed = 40.0 # Chậm nhưng đáng sợ
 	xp_value = 50
-	gold_value = 10
+	gold_value = 25
 	attack_cooldown = 1.0
-	knockback_resistance = 0.8  # Gần như không bị đẩy
+	knockback_resistance = 0.8 # Gần như không bị đẩy
 	
 	# Call parent
 	super._ready()
@@ -62,7 +62,7 @@ func _enrage() -> void:
 	
 	# Visual feedback (có thể thêm effect sau)
 	if sprite:
-		sprite.modulate = Color(1, 0.3, 0.3)  # Đỏ lên
+		sprite.modulate = Color(1, 0.3, 0.3) # Đỏ lên
 	
 	print("💀 ", enemy_name, " CUỒNG NỘ!")
 

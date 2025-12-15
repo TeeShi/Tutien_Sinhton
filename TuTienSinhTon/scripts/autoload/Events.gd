@@ -71,6 +71,7 @@ signal time_updated(current_time: float)           # Mỗi giây trong run
 # --- Player Signals ---
 signal player_spawned(player: Node2D)              # Player được tạo
 signal player_health_changed(current: int, max: int) # HP thay đổi
+signal player_damaged(damage: int, current_hp: int)  # Player bị đánh (for shake)
 signal player_died                                 # Player chết
 
 # --- XP & Level Signals ---
